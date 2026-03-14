@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Category definition -->
+        <record model="ir.module.category" id="module_category_direct_print">
+            <field name="name">Impresión Directa</field>
+            <field name="description">Gestiona la impresión directa a impresoras locales/red.</field>
+            <field name="sequence">10</field>
+        </record>
+
+        <!-- Group definition -->
+        <record id="group_direct_print_manager" model="res.groups">
+            <field name="name">Administrador de Impresión Directa</field>
+            <!-- In Odoo 19, use module_category_id instead of category_id if category_id fails, 
+                 or check if ir.module.category structure changed. 
+                 However, the error says 'category_id' invalid field in 'res.groups'.
+                 Wait, res.groups definitely has category_id in previous versions. 
+                 Let's check if it was renamed to 'category_id' -> 'module_category_id' or similar?
+                 Actually, recent Odoo versions (16+) still use category_id.
+                 But let's double check if it is related to "User types" or "Human Resources" changes.
+                 
+                 WAIT: The error message says: ValueError: Invalid field 'category_id' in 'res.groups'
+                 
+                 If Odoo 19 removed 'category_id' from 'res.groups', we should remove it.
+                 But groups usually need a category to appear in settings.
+                 
+                 According to search results: "Category from res.groups: Categories in res.groups have been restructured for clearer privilege management."
+                 And "res.groups are now res.groups.privilege" ?? No, that sounds like a big change.
+                 
+                 Let's try removing category_id for now to fix the install error, 
+                 and maybe use 'implied_ids' if needed, or just leave it without category (it will be "Other").
+                 
+                 Alternatively, search result #3 says: "Category from res.groups: Categories in res.groups have been restructured...". 
+                 It doesn't explicitly give the new field name but suggests a change.
+                 
+                 Let's try to NOT set category_id for now to unblock.
+            -->
+            <!-- <field name="category_id" ref="module_category_direct_print"/> -->
+            <field name="user_ids" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+        </record>
+    </data>
+</odoo>
