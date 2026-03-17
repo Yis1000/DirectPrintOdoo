@@ -1,0 +1,334 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Vistas de Impresora -->
+    <record id="view_direct_print_printer_form" model="ir.ui.view">
+        <field name="name">direct.print.printer.form</field>
+        <field name="model">direct.print.printer</field>
+        <field name="arch" type="xml">
+            <form string="Impresora">
+                <header>
+                    <button name="toggle_active" type="object" class="oe_stat_button" icon="fa-power-off">
+                        <span class="o_stat_text" invisible="active == True">Activar</span>
+                        <span class="o_stat_text" invisible="active == False">Desactivar</span>
+                    </button>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button class="oe_stat_button" type="object" name="action_view_jobs" icon="fa-print">
+                            <field name="job_count" widget="statinfo" string="Trabajos Pendientes"/>
+                        </button>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="name" placeholder="Ej: Impresora Almacén"/>
+                            <field name="printer_identifier" placeholder="Ej: HP_LaserJet_1020 o 192.168.1.50"/>
+                        </group>
+                        <group>
+                            <field name="connection_type" widget="radio"/>
+                            <field name="printer_language"/>
+                            <field name="ip_address" invisible="connection_type != 'network'" placeholder="192.168.1.50"/>
+                            <field name="port" invisible="connection_type != 'network'" options="{'format': 0}"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Vista Kanban para Impresoras -->
+    <record id="view_direct_print_printer_kanban" model="ir.ui.view">
+        <field name="name">direct.print.printer.kanban</field>
+        <field name="model">direct.print.printer</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="active">
+                <field name="name"/>
+                <field name="printer_identifier"/>
+                <field name="connection_type"/>
+                <field name="printer_language"/>
+                <field name="active"/>
+                <field name="job_count"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_card oe_kanban_global_click">
+                            <div class="oe_kanban_content">
+                                <strong class="o_kanban_record_title"><field name="name"/></strong>
+                                <div><field name="printer_identifier"/></div>
+                                <div><field name="connection_type"/> - <field name="printer_language"/></div>
+                                <div class="text-muted"><field name="job_count"/> trabajos pendientes</div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="view_direct_print_printer_list" model="ir.ui.view">
+        <field name="name">direct.print.printer.list</field>
+        <field name="model">direct.print.printer</field>
+        <field name="arch" type="xml">
+            <list string="Impresoras">
+                <field name="active" invisible="1"/>
+                <field name="name" decoration-success="active == True" decoration-muted="active == False"/>
+                <field name="printer_identifier"/>
+                <field name="connection_type"/>
+                <field name="printer_language"/>
+                <field name="job_count"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Vistas de Configuración -->
+    <record id="view_direct_print_config_form" model="ir.ui.view">
+        <field name="name">direct.print.config.form</field>
+        <field name="model">direct.print.config</field>
+        <field name="arch" type="xml">
+            <form string="Configuración de Impresión">
+                <sheet>
+                    <div class="oe_title">
+                        <field name="name" placeholder="Ej: Ventas - Almacén Principal"/>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="print_area" widget="radio"/>
+                            <field name="printer_id"/>
+                        </group>
+                        <group>
+                            <field name="user_id" placeholder="Todos los usuarios"/>
+                            <field name="auto_print"/>
+                            <field name="report_id"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Vista Kanban para Configuraciones -->
+    <record id="view_direct_print_config_kanban" model="ir.ui.view">
+        <field name="name">direct.print.config.kanban</field>
+        <field name="model">direct.print.config</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="print_area">
+                <field name="name"/>
+                <field name="print_area"/>
+                <field name="printer_id"/>
+                <field name="user_id"/>
+                <field name="auto_print"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_card oe_kanban_global_click">
+                            <div class="oe_kanban_content">
+                                <strong class="o_kanban_record_title"><field name="name"/></strong>
+                                <div><field name="printer_id"/></div>
+                                <div>Usuario: <field name="user_id"/></div>
+                                <div t-if="record.auto_print.raw_value">
+                                    <span class="badge badge-success">Auto imprimir</span>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="view_direct_print_config_list" model="ir.ui.view">
+        <field name="name">direct.print.config.list</field>
+        <field name="model">direct.print.config</field>
+        <field name="arch" type="xml">
+            <list string="Configuraciones">
+                <field name="name"/>
+                <field name="print_area"/>
+                <field name="printer_id"/>
+                <field name="user_id"/>
+                <field name="auto_print"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Vistas de Trabajos de Impresión (Cola) -->
+    <record id="view_direct_print_job_form" model="ir.ui.view">
+        <field name="name">direct.print.job.form</field>
+        <field name="model">direct.print.job</field>
+        <field name="arch" type="xml">
+            <form string="Trabajo de Impresión" create="false" edit="false">
+                <header>
+                    <button name="action_retry" string="Reintentar" type="object" class="btn-primary" icon="fa-refresh" invisible="status != 'error'"/>
+                    <field name="status" widget="statusbar" statusbar_visible="pending,printing,success,error"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box">
+                        <button class="oe_stat_button" icon="fa-file-alt">
+                            <div class="o_field_widget_statinfo o_stat_info">
+                                <span class="o_stat_text"><field name="document_model"/></span>
+                                <span class="o_stat_value">#<field name="document_id"/></span>
+                            </div>
+                        </button>
+                        <button class="oe_stat_button" icon="fa-print">
+                            <div class="o_field_widget_statinfo o_stat_info">
+                                <span class="o_stat_text">Impresora</span>
+                                <span class="o_stat_value"><field name="printer_id"/></span>
+                            </div>
+                        </button>
+                        <button class="oe_stat_button" icon="fa-redo">
+                            <div class="o_field_widget_statinfo o_stat_info">
+                                <span class="o_stat_text">Intentos</span>
+                                <span class="o_stat_value"><field name="attempts"/></span>
+                            </div>
+                        </button>
+                    </div>
+                    <group invisible="status != 'error'">
+                        <group string="Error">
+                            <field name="error_message" readonly="1" nolabel="1" class="text-danger"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group>
+                            <field name="user_id"/>
+                            <field name="printed_at"/>
+                        </group>
+                        <group>
+                            <field name="config_id"/>
+                            <field name="company_id"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Vista Kanban para Cola de Impresión -->
+    <record id="view_direct_print_job_kanban" model="ir.ui.view">
+        <field name="name">direct.print.job.kanban</field>
+        <field name="model">direct.print.job</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="status" creatable="false" edit="false">
+                <field name="document_model"/>
+                <field name="document_id"/>
+                <field name="printer_id"/>
+                <field name="status"/>
+                <field name="user_id"/>
+                <field name="attempts"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_card oe_kanban_global_click">
+                            <div class="oe_kanban_content">
+                                <strong class="o_kanban_record_title"><field name="document_model"/> #<field name="document_id"/></strong>
+                                <div><field name="printer_id"/></div>
+                                <div><field name="user_id"/> - <field name="attempts"/> intentos</div>
+                                <button name="action_retry" type="object" class="btn btn-primary btn-sm oe_kanban_action_button">Reintentar</button>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="view_direct_print_job_list" model="ir.ui.view">
+        <field name="name">direct.print.job.list</field>
+        <field name="model">direct.print.job</field>
+        <field name="arch" type="xml">
+            <list string="Cola de Impresión" create="false" edit="false"
+                  decoration-danger="status == 'error'"
+                  decoration-info="status == 'printing'"
+                  decoration-success="status == 'success'"
+                  decoration-muted="status == 'pending'">
+                <field name="printed_at"/>
+                <field name="document_model"/>
+                <field name="document_id"/>
+                <field name="printer_id"/>
+                <field name="user_id"/>
+                <field name="attempts"/>
+                <field name="status"/>
+                <button name="action_retry" type="object" icon="fa-refresh" title="Reintentar" invisible="status != 'error'"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Vista de búsqueda mejorada -->
+    <record id="view_direct_print_job_search" model="ir.ui.view">
+        <field name="name">direct.print.job.search</field>
+        <field name="model">direct.print.job</field>
+        <field name="arch" type="xml">
+            <search string="Buscar Trabajos">
+                <filter name="pending" string="Pendientes" domain="[('status', '=', 'pending')]"/>
+                <filter name="printing" string="Imprimiendo" domain="[('status', '=', 'printing')]"/>
+                <filter name="success" string="Exitosos" domain="[('status', '=', 'success')]"/>
+                <filter name="error" string="Con Error" domain="[('status', '=', 'error')]"/>
+                <separator/>
+                <filter name="today" string="Hoy" domain="[('printed_at', '>=', (context_today() - datetime.timedelta(days=1)).strftime('%Y-%m-%d'))]"/>
+                <separator/>
+                <group expand="0" string="Agrupar por">
+                    <filter name="group_status" string="Estado" domain="[]" context="{'group_by': 'status'}"/>
+                    <filter name="group_printer" string="Impresora" domain="[]" context="{'group_by': 'printer_id'}"/>
+                    <filter name="group_model" string="Modelo" domain="[]" context="{'group_by': 'document_model'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Acciones -->
+    <record id="action_direct_print_printer" model="ir.actions.act_window">
+        <field name="name">Impresoras</field>
+        <field name="res_model">direct.print.printer</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Crea tu primera impresora
+            </p>
+            <p>
+                Configura las impresoras disponibles en tu sistema.
+                Pueden ser USB, de red o conectadas por WiFi.
+            </p>
+        </field>
+    </record>
+
+    <record id="action_direct_print_config" model="ir.actions.act_window">
+        <field name="name">Configuraciones de Impresión</field>
+        <field name="res_model">direct.print.config</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Crea tu primera configuración
+            </p>
+            <p>
+                Define cuándo y cómo imprimir automáticamente.
+                Puedes configurar reglas por área de Odoo y por usuario.
+            </p>
+        </field>
+    </record>
+
+    <record id="action_direct_print_job" model="ir.actions.act_window">
+        <field name="name">Cola de Impresión</field>
+        <field name="res_model">direct.print.job</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="search_view_id" ref="view_direct_print_job_search"/>
+        <field name="context">{'search_default_pending': 1}</field>
+    </record>
+
+    <!-- Menús -->
+    <menuitem id="menu_direct_print_root"
+              name="Impresión Directa"
+              sequence="10"
+              web_icon="direct_auto_print,static/description/icon.png"/>
+
+    <menuitem id="menu_direct_print_printer"
+              name="Impresoras"
+              parent="menu_direct_print_root"
+              action="action_direct_print_printer"
+              sequence="10"/>
+
+    <menuitem id="menu_direct_print_config"
+              name="Configuraciones"
+              parent="menu_direct_print_root"
+              action="action_direct_print_config"
+              sequence="20"/>
+
+    <menuitem id="menu_direct_print_job"
+              name="Cola de Impresión"
+              parent="menu_direct_print_root"
+              action="action_direct_print_job"
+              sequence="30"/>
+</odoo>

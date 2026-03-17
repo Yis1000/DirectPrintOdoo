@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Category definition -->
+        <record model="ir.module.category" id="module_category_direct_print">
+            <field name="name">Impresión Directa</field>
+            <field name="description">Gestiona la impresión directa a impresoras locales/red.</field>
+            <field name="sequence">10</field>
+        </record>
+
+        <!-- Group definition -->
+        <record id="group_direct_print_manager" model="res.groups">
+            <field name="name">Administrador de Impresión Directa</field>
+            <field name="category_id" ref="module_category_direct_print"/>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+        </record>
+    </data>
+</odoo>

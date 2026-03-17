@@ -1,0 +1,25 @@
+[Unit]
+Description=Odoo Direct Print Worker
+After=network.target odoo.service
+Wants=odoo.service
+
+[Service]
+Type=simple
+User=odoo
+Group=odoo
+WorkingDirectory=/opt/odoo
+ExecStart=/usr/bin/python3 /opt/odoo/print_worker.py
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=odoo-print-worker
+
+# Environment variables (ajusta según tu configuración)
+Environment="ODOO_URL=http://localhost:8069"
+Environment="DB_NAME=postgres"
+Environment="USERNAME=admin"
+Environment="PASSWORD=admin"
+
+[Install]
+WantedBy=multi-user.target
