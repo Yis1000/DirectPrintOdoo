@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Vistas de Impresora -->
+    <!-- Printer views -->
     <record id="view_direct_print_printer_form" model="ir.ui.view">
         <field name="name">direct.print.printer.form</field>
         <field name="model">direct.print.printer</field>
         <field name="arch" type="xml">
-            <form string="Impresora">
+            <form string="Printer">
                 <sheet>
                     <group>
                         <group>
@@ -28,7 +28,7 @@
         <field name="name">direct.print.printer.list</field>
         <field name="model">direct.print.printer</field>
         <field name="arch" type="xml">
-            <list string="Impresoras">
+            <list string="Printers">
                 <field name="name"/>
                 <field name="printer_identifier"/>
                 <field name="connection_type"/>
@@ -37,12 +37,12 @@
         </field>
     </record>
 
-    <!-- Vistas de Configuración -->
+    <!-- Configuration views -->
     <record id="view_direct_print_config_form" model="ir.ui.view">
         <field name="name">direct.print.config.form</field>
         <field name="model">direct.print.config</field>
         <field name="arch" type="xml">
-            <form string="Configuración de Impresión">
+            <form string="Print Configuration">
                 <sheet>
                     <group>
                         <group>
@@ -64,7 +64,7 @@
         <field name="name">direct.print.config.list</field>
         <field name="model">direct.print.config</field>
         <field name="arch" type="xml">
-            <list string="Configuraciones">
+            <list string="Configurations">
                 <field name="name"/>
                 <field name="print_area"/>
                 <field name="printer_id"/>
@@ -74,12 +74,12 @@
         </field>
     </record>
 
-    <!-- Vistas de Log -->
+    <!-- Log views -->
     <record id="view_direct_print_log_tree" model="ir.ui.view">
         <field name="name">direct.print.log.list</field>
         <field name="model">direct.print.log</field>
         <field name="arch" type="xml">
-            <list string="Logs de Impresión" create="false" edit="false">
+            <list string="Print Logs" create="false" edit="false">
                 <field name="printed_at"/>
                 <field name="document_model"/>
                 <field name="document_id"/>
@@ -91,48 +91,47 @@
         </field>
     </record>
 
-    <!-- Acciones -->
+    <!-- Actions -->
     <record id="action_direct_print_printer" model="ir.actions.act_window">
-        <field name="name">Impresoras</field>
+        <field name="name">Printers</field>
         <field name="res_model">direct.print.printer</field>
         <field name="view_mode">list,form</field>
     </record>
 
     <record id="action_direct_print_config" model="ir.actions.act_window">
-        <field name="name">Configuraciones de Impresión</field>
+        <field name="name">Print Configurations</field>
         <field name="res_model">direct.print.config</field>
         <field name="view_mode">list,form</field>
     </record>
 
     <record id="action_direct_print_log" model="ir.actions.act_window">
-        <field name="name">Logs de Impresión</field>
+        <field name="name">Print Logs</field>
         <field name="res_model">direct.print.log</field>
         <field name="view_mode">list</field>
     </record>
 
-    <!-- Menús -->
-    <!-- Menú Raíz bajo Configuración/Ajustes (base.menu_administration) -->
-    <menuitem id="menu_direct_print_root" 
-              name="Impresión Directa" 
-              parent="base.menu_administration" 
+    <!-- Menus -->
+    <menuitem id="menu_direct_print_root"
+              name="Direct Print"
+              parent="base.menu_administration"
               sequence="100"
               groups="group_direct_print_manager"/>
 
-    <menuitem id="menu_direct_print_printer" 
-              name="Impresoras" 
-              parent="menu_direct_print_root" 
-              action="action_direct_print_printer" 
+    <menuitem id="menu_direct_print_printer"
+              name="Printers"
+              parent="menu_direct_print_root"
+              action="action_direct_print_printer"
               sequence="10"/>
 
-    <menuitem id="menu_direct_print_config" 
-              name="Configuraciones" 
-              parent="menu_direct_print_root" 
-              action="action_direct_print_config" 
+    <menuitem id="menu_direct_print_config"
+              name="Configurations"
+              parent="menu_direct_print_root"
+              action="action_direct_print_config"
               sequence="20"/>
 
-    <menuitem id="menu_direct_print_log" 
-              name="Logs" 
-              parent="menu_direct_print_root" 
-              action="action_direct_print_log" 
+    <menuitem id="menu_direct_print_log"
+              name="Logs"
+              parent="menu_direct_print_root"
+              action="action_direct_print_log"
               sequence="30"/>
 </odoo>
