@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Direct Print',
-    'version': '18.0.1.0.0',
+    'version': '17.0.1.0.0',
     'category': 'Tools',
     'summary': 'Push Odoo reports straight to a configured printer — no PDF download needed.',
     'description': """

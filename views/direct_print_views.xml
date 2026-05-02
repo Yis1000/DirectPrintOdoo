@@ -25,15 +25,15 @@
     </record>
 
     <record id="view_direct_print_printer_tree" model="ir.ui.view">
-        <field name="name">direct.print.printer.list</field>
+        <field name="name">direct.print.printer.tree</field>
         <field name="model">direct.print.printer</field>
         <field name="arch" type="xml">
-            <list string="Printers">
+            <tree string="Printers">
                 <field name="name"/>
                 <field name="printer_identifier"/>
                 <field name="connection_type"/>
                 <field name="active"/>
-            </list>
+            </tree>
         </field>
     </record>
 
@@ -61,25 +61,25 @@
     </record>
 
     <record id="view_direct_print_config_tree" model="ir.ui.view">
-        <field name="name">direct.print.config.list</field>
+        <field name="name">direct.print.config.tree</field>
         <field name="model">direct.print.config</field>
         <field name="arch" type="xml">
-            <list string="Configurations">
+            <tree string="Configurations">
                 <field name="name"/>
                 <field name="print_area"/>
                 <field name="printer_id"/>
                 <field name="user_id"/>
                 <field name="auto_print"/>
-            </list>
+            </tree>
         </field>
     </record>
 
     <!-- Log views -->
     <record id="view_direct_print_log_tree" model="ir.ui.view">
-        <field name="name">direct.print.log.list</field>
+        <field name="name">direct.print.log.tree</field>
         <field name="model">direct.print.log</field>
         <field name="arch" type="xml">
-            <list string="Print Logs" create="false" edit="false">
+            <tree string="Print Logs" create="false" edit="false">
                 <field name="printed_at"/>
                 <field name="document_model"/>
                 <field name="document_id"/>
@@ -87,7 +87,7 @@
                 <field name="user_id"/>
                 <field name="status"/>
                 <field name="error_message"/>
-            </list>
+            </tree>
         </field>
     </record>
 
@@ -95,19 +95,19 @@
     <record id="action_direct_print_printer" model="ir.actions.act_window">
         <field name="name">Printers</field>
         <field name="res_model">direct.print.printer</field>
-        <field name="view_mode">list,form</field>
+        <field name="view_mode">tree,form</field>
     </record>
 
     <record id="action_direct_print_config" model="ir.actions.act_window">
         <field name="name">Print Configurations</field>
         <field name="res_model">direct.print.config</field>
-        <field name="view_mode">list,form</field>
+        <field name="view_mode">tree,form</field>
     </record>
 
     <record id="action_direct_print_log" model="ir.actions.act_window">
         <field name="name">Print Logs</field>
         <field name="res_model">direct.print.log</field>
-        <field name="view_mode">list</field>
+        <field name="view_mode">tree</field>
     </record>
 
     <!-- Menus -->
