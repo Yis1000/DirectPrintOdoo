@@ -15,8 +15,8 @@
                         </group>
                         <group>
                             <field name="connection_type"/>
-                            <field name="ip_address" invisible="connection_type != 'network'"/>
-                            <field name="port" invisible="connection_type != 'network'" options="{'format': 0}"/>
+                            <field name="ip_address" attrs="{'invisible': [('connection_type','!=','network')]}"/>
+                            <field name="port" attrs="{'invisible': [('connection_type','!=','network')]}" options="{'format': 0}"/>
                         </group>
                     </group>
                 </sheet>

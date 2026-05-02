@@ -67,8 +67,7 @@ class DirectPrintService(models.AbstractModel):
             if not record.exists():
                 raise UserError(_("Record %s no longer exists.") % record.id)
 
-            pdf_content, _type = self.env['ir.actions.report']._render_qweb_pdf(
-                report.report_name, res_ids=record.ids)
+            pdf_content, _type = report._render_qweb_pdf(record.ids)
 
             self._send_to_printer(printer, pdf_content)
             self._log_print(record, printer, 'success')
