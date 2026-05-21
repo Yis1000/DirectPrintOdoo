@@ -9,7 +9,7 @@
         Permite configurar impresoras, asignarlas a reportes y usuarios, y habilitar la impresión automática
         al confirmar ventas, validar albaranes, etc.
     """,
-    'author': 'HIGA',
+    'author': 'Higa Solutions',
     'depends': ['base', 'sale', 'account', 'stock', 'mrp', 'purchase', 'contacts'],
     'data': [
         'security/security.xml',
@@ -22,4 +22,5 @@
     'application': True,
     'license': 'LGPL-3',
 }
+
 
