@@ -1,101 +1,131 @@
 # -*- coding: utf-8 -*-
+import base64
 import logging
-import os
-import socket
 import subprocess
+import os
 import tempfile
-
-from odoo import api, models, _
+from odoo import models, api, _
 from odoo.exceptions import UserError
 
 _logger = logging.getLogger(__name__)
 
-
 class DirectPrintService(models.AbstractModel):
     _name = 'direct.print.service'
-    _description = 'Direct Print Service'
+    _description = 'Servicio de Impresión Directa'
 
     @api.model
     def print_document(self, record, report_name=None):
-        """Find the matching configuration, render the PDF and send it to the printer."""
-        _logger.info("Looking up print configuration for %s - User: %s", record._name, self.env.user.id)
-
+        """
+        Encuentra la configuración adecuada, renderiza el PDF y lo envía a la impresora.
+        """
+        # 1. Buscar configuración de impresión
+        # Prioridad: Usuario actual + Modelo -> Configuración global
+        
+        # Ajuste de búsqueda: Buscar configuraciones por área de impresión
+        _logger.info(f"Buscando configuración de impresión para {record._name} - Usuario: {self.env.user.id}")
+        
         area_mapping = {
             'sale.order': 'sale',
             'purchase.order': 'purchase',
             'account.move': 'account',
             'stock.picking': 'stock',
-            'mrp.production': 'mrp',
+            'mrp.production': 'mrp'
         }
         record_area = area_mapping.get(record._name, 'all')
 
         configs = self.env['direct.print.config'].search([
             ('user_id', '=', self.env.user.id),
-            ('print_area', 'in', [record_area, 'all']),
+            ('print_area', 'in', [record_area, 'all'])
         ], order='print_area desc', limit=1)
 
         if not configs:
-            _logger.info("No per-user configuration found, falling back to global rules.")
+            _logger.info("No se encontró configuración por usuario, buscando global...")
             configs = self.env['direct.print.config'].search([
-                ('user_id', '=', False),
-                ('print_area', 'in', [record_area, 'all']),
+                ('user_id', '=', False), # Configuración global
+                ('print_area', 'in', [record_area, 'all'])
             ], order='print_area desc', limit=1)
-
+        
         if not configs:
-            _logger.info("No print configuration found for area %s", record_area)
+            _logger.info(f"No se encontró configuración de impresión para el área {record_area}")
             return False
 
         config = configs[0]
-
+        
         if report_name:
             report = self.env['ir.actions.report']._get_report_from_name(report_name)
         else:
             report = self.env['ir.actions.report'].search([('model', '=', record._name)], limit=1)
-
+            
         if not report:
-            raise UserError(_("No default report is configured for model %s.") % record._name)
+            raise UserError(_("No existe un reporte configurado por defecto para el modelo %s") % record._name)
 
-        _logger.info("Match: %s - Printer: %s - Report: %s", config.name, config.printer_id.name, report.name)
+        _logger.info(f"Configuración encontrada: {config.name} - Impresora: {config.printer_id.name} - Reporte: {report.name}")
         printer = config.printer_id
 
         if not printer.active:
-            self._log_print(record, printer, 'error', "The configured printer is inactive.")
-            raise UserError(_("The configured printer is inactive."))
+            self._log_print(record, printer, 'error', "La impresora está inactiva.")
+            raise UserError(_("La impresora configurada está inactiva."))
 
         try:
-            _logger.info("Rendering report %s for record id %s", report.report_name, record.id)
+            # 2. Renderizar PDF
+            # _render_qweb_pdf espera ids como lista, pero devuelve contenido para todos.
+            # Aseguramos que pasamos el ID correcto.
+            _logger.info(f"Renderizando reporte {report.report_name} para registro ID {record.id}")
+            # Verificación extra: asegurar que el registro existe en el entorno actual
             if not record.exists():
-                raise UserError(_("Record %s no longer exists.") % record.id)
+                 raise UserError(f"El registro {record.id} no existe o fue eliminado.")
 
-            pdf_content, _type = report._render_qweb_pdf(record.ids)
-
+            pdf_content, _type = self.env['ir.actions.report']._render_qweb_pdf(report.report_name, res_ids=record.ids)
+            
+            # 3. Enviar a la impresora
             self._send_to_printer(printer, pdf_content)
+            
+            # 4. Log éxito
             self._log_print(record, printer, 'success')
             return True
 
         except Exception as e:
             error_msg = str(e)
-            _logger.error("Direct print failed: %s", error_msg)
+            _logger.error(f"Error imprimiendo documento: {error_msg}")
+            # Log de error usando cursor separado
             self._log_print(record, printer, 'error', error_msg)
+            # No hacemos raise para no interrumpir el flujo del usuario, solo notificamos
+            # raise UserError(_("Error al imprimir: %s") % error_msg)
             return False
 
     def _send_to_printer(self, printer, pdf_content):
-        """Push the PDF bytes to the printer (raw socket for network, lp for system queues)."""
+        """
+        Envía el contenido PDF a la impresora del sistema usando lp/lpr.
+        """
+        # Crear archivo temporal
         with tempfile.NamedTemporaryFile(suffix='.pdf', delete=False) as temp_pdf:
             temp_pdf.write(pdf_content)
             temp_pdf_path = temp_pdf.name
 
         try:
+            # Construir comando
+            # Si es network, a veces se usa socket://ip:port, pero lp espera una cola de sistema.
+            # Asumiremos que printer_identifier es el nombre de la cola en el sistema (CUPS)
+            # O si se quiere usar netcat para impresoras raw port 9100:
+            
             if printer.connection_type == 'network' and printer.ip_address:
-                self._print_via_socket(printer.ip_address, printer.port, pdf_content)
+                 # Ejemplo simple enviando raw a puerto 9100 (netcat/socket)
+                 # Esto es muy básico y funciona para muchas impresoras de red modernas (JetDirect)
+                 # Si no, usar lp con el nombre de la impresora del sistema
+                 self._print_via_socket(printer.ip_address, printer.port, pdf_content)
             else:
+                # Usar comando de sistema lp
+                # Requiere que la impresora esté instalada en el SO donde corre Odoo
                 cmd = ['lp', '-d', printer.printer_identifier, temp_pdf_path]
                 subprocess.check_call(cmd)
+                
         finally:
+            # Limpiar
             if os.path.exists(temp_pdf_path):
                 os.remove(temp_pdf_path)
 
     def _print_via_socket(self, host, port, content):
+        import socket
         try:
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             sock.settimeout(10)
@@ -103,12 +133,15 @@ class DirectPrintService(models.AbstractModel):
             sock.sendall(content)
             sock.close()
         except Exception as e:
-            raise Exception("Network connection to printer %s:%s failed - %s" % (host, port, e))
+            raise Exception(f"Fallo conexión de red a impresora {host}:{port} - {str(e)}")
 
     def _log_print(self, record, printer, status, error_msg=False):
-        """Persist the log entry on a separate cursor so it survives a rollback of the main one."""
+        """
+        Registra el log en una transacción separada para persistir incluso si hay rollback.
+        """
         try:
             with self.pool.cursor() as new_cr:
+                # Crear nuevo entorno con el cursor nuevo
                 new_env = api.Environment(new_cr, self.env.uid, {})
                 new_env['direct.print.log'].create({
                     'document_model': record._name,
@@ -116,8 +149,10 @@ class DirectPrintService(models.AbstractModel):
                     'printer_id': printer.id,
                     'user_id': self.env.user.id,
                     'status': status,
-                    'error_message': error_msg,
+                    'error_message': error_msg
                 })
+                # Commit explícito de la nueva transacción
                 new_cr.commit()
         except Exception as e:
-            _logger.error("Failed to write direct print log: %s", e)
+            _logger.error(f"Error al escribir log de impresión: {str(e)}")
+
