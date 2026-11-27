@@ -1,7 +1,7 @@
 # Impresión Directa Automática (Direct Auto Print)
 
 ## Descripción
-Módulo para Odoo 19.0 que permite la impresión directa de documentos a una impresora local o de red sin necesidad de descargar previamente el archivo PDF correspondiente.
+Módulo para Odoo 20.0 que permite la impresión directa de documentos a una impresora local o de red sin necesidad de descargar previamente el archivo PDF correspondiente.
 
 ### Características Principales:
 * **Configuración de Impresoras:** Permite dar de alta y configurar impresoras locales o de red en el sistema.
@@ -19,6 +19,6 @@ Este módulo depende de las siguientes aplicaciones base de Odoo:
 - `contacts`
 
 ## Versión
-- Odoo: **19.0**
+- Odoo: **20.0**
 - Licencia: **LGPL-3**
 - Autor: **HIGA**

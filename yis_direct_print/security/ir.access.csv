@@ -1,0 +1,7 @@
+id,name,model_id,group_id/id,operation,domain
+access_direct_print_printer_manager,direct.print.printer.manager,direct.print.printer,yis_direct_print.group_direct_print_manager,crud,
+access_direct_print_printer_user,direct.print.printer.user,direct.print.printer,base.group_user,r,
+access_direct_print_config_manager,direct.print.config.manager,direct.print.config,yis_direct_print.group_direct_print_manager,crud,
+access_direct_print_config_user,direct.print.config.user,direct.print.config,base.group_user,r,
+access_direct_print_log_manager,direct.print.log.manager,direct.print.log,yis_direct_print.group_direct_print_manager,crud,
+access_direct_print_log_user,direct.print.log.user,direct.print.log,base.group_user,cru,
